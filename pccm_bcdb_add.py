@@ -1,5 +1,4 @@
 def add_new(conn, cursor, file_number, table):
-    from ask_y_n_statement import ask_option, ask_y_n
     import gen_info_tables
     print ("Enter new record for General Information")
     print("Enter Patient Biographical Information")
@@ -21,7 +20,7 @@ def add_new(conn, cursor, file_number, table):
     gen_info_tables.metastasis_symp(conn, cursor, file_number, table)
 
 def update_record(conn, cursor, file_number, table):
-    from ask_y_n_statement import ask_option, ask_y_n
+    from ask_y_n_statement import ask_y_n
     import gen_info_tables
     print("Update record for General Information")
     enter = ask_y_n("Enter Patient Biographical Information")

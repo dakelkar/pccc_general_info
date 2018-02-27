@@ -142,29 +142,30 @@ def repro_details(conn, cursor, file_number, table):
             options = ["Regular", "Irregular", "Other"]
             period_type = ask_option(category, options)
         number_pregnancy = input("Number of pregnancies: ")
-        number_term = input("Pregnancy carried to term (include abortion after 6 months): )")
-        number_abortion = input("Number of abortions: ")
-        sql = ('SELECT Children FROM Patient_Information_History WHERE File_number = \'' + file_number + "'")
-        cursor.execute(sql)
-        kids = cursor.fetchall()
-        children_number = kids[0][0]
-        sql = ('SELECT Age_yrs FROM Patient_Information_History WHERE File_number = \'' + file_number + "'")
-        cursor.execute(sql)
-        age = cursor.fetchall()
-        age_mother = age[0][0]
-        if children_number == 'No Children':
-            age_first, age_last, twice_birth, breast_feeding_data, kid_feeding, \
-        duration_feeding, breast_usage = ('NA',) * 7
-        else:
-            age_first = input("Age of first child: ")
-            if int(children_number) > 1:
-                age_last = input("Age of last child: ")
-            else:
-                age_last = age_first
         if number_pregnancy =="0":
-            age_first_preg, age_last_preg  = ("NA", )*2
+            age_first_preg, age_last_preg, number_term, number_abortion,age_first, age_last, twice_birth, \
+            breast_feeding_data, kid_feeding, duration_feeding, breast_usage = ('NA',) * 11
         else:
+            number_term = input("Pregnancy carried to term (include abortion after 6 months): )")
+            number_abortion = input("Number of abortions: ")
             age_first_preg = input("Age at first pregnancy: ")
+            sql = ('SELECT Children FROM Patient_Information_History WHERE File_number = \'' + file_number + "'")
+            cursor.execute(sql)
+            kids = cursor.fetchall()
+            children_number = kids[0][0]
+            sql = ('SELECT Age_yrs FROM Patient_Information_History WHERE File_number = \'' + file_number + "'")
+            cursor.execute(sql)
+            age = cursor.fetchall()
+            age_mother = age[0][0]
+            if children_number == 'No Children':
+                age_first, age_last, twice_birth, breast_feeding_data, kid_feeding, \
+                duration_feeding, breast_usage = ('NA',) * 7
+            else:
+                age_first = input("Age of first child: ")
+                if int(children_number) > 1:
+                    age_last = input("Age of last child: ")
+                else:
+                    age_last = age_first
             if age_first_preg == "NA":
                 age_first_preg = str(int(age_mother) - int(age_first))
             age_last_preg = input("Age at last pregnancy: ")
@@ -180,12 +181,12 @@ def repro_details(conn, cursor, file_number, table):
                 breast_feeding_data = "No Breast feeding"
                 feed_details = ("NA",) * 3
             kid_feeding, duration_feeding, breast_usage = feed_details
-            type_birth_control = input("Type of birth control used: ")
-            if str.lower(type_birth_control) == "na":
-                type_birth_control, detail_birth_control, duration_birth_control = ("NA",) * 3
-            else:
-                detail_birth_control = input("Details of birth control used: ")
-                duration_birth_control = input("Duration of birth control use: ")
+        type_birth_control = input("Type of birth control used: ")
+        if str.lower(type_birth_control) == "na":
+            type_birth_control, detail_birth_control, duration_birth_control = ("NA",) * 3
+        else:
+            detail_birth_control = input("Details of birth control used: ")
+            duration_birth_control = input("Duration of birth control use: ")
         data_list = [menarche, menopause, menopause_age, lmp, period_type, number_pregnancy, number_term,
                      number_abortion,age_first, age_first_preg, age_last, age_last_preg, twice_birth,
                      breast_feeding_data, kid_feeding, duration_feeding, breast_usage, type_birth_control,
@@ -335,16 +336,19 @@ def habits(conn, cursor, file_number, table):
             tobacco_comments = input("Additional comments for tobacco consumption: ")
         else:
             tobacco = "No Tobacco Consumption"
-            exposure_type, tobacco_type, tobacco_age, tobacco_freq, tobacco_quant, tobacco_duration, tobacco_comments = ("NA",) * 7
+            exposure_type, tobacco_passive, tobacco_type, tobacco_age, tobacco_freq, tobacco_quant, tobacco_duration, \
+            tobacco_comments = ("NA",) * 8
         other_del_habits = input("Other Deleterious Habits (if present give details): ")
         columns_list = ["Tobacco_y_n", "Exposure_Mode", "Type_Passive", "Type_tobacco","Tobacco_consumption_age_yrs", "Tobacco_Frequency","Quantity_tobacco_per_week",
                         "Duration_tobacco", "Comments_tobacco", "Other_Deleterious_Habits"]
-        data_list = [tobacco, exposure_type, tobacco_passive,tobacco_type, tobacco_age, tobacco_freq, tobacco_quant, tobacco_duration, tobacco_comments, other_del_habits]
+        data_list = [tobacco, exposure_type, tobacco_passive,tobacco_type, tobacco_age, tobacco_freq, tobacco_quant,
+                     tobacco_duration, tobacco_comments, other_del_habits]
         check = review_input(file_number, columns_list, data_list)
     columns = "Tobacco_y_n", "Exposure_Mode", "Type_Passive", "Type_tobacco","Tobacco_consumption_age_yrs", \
               "Tobacco_Frequency","Quantity_tobacco_per_week", "Duration_tobacco", "Comments_tobacco",\
               "Other_Deleterious_Habits"
-    data = tobacco, exposure_type,tobacco_passive, tobacco_type, tobacco_age, tobacco_freq, tobacco_quant, tobacco_duration, tobacco_comments, other_del_habits
+    data = tobacco, exposure_type,tobacco_passive, tobacco_type, tobacco_age, tobacco_freq, tobacco_quant, \
+           tobacco_duration, tobacco_comments, other_del_habits
     update_multiple(conn, cursor, table, columns, file_number, data)
 
 
@@ -431,13 +435,17 @@ def bio_info(conn, cursor, file_number, table):
                                             "Consent form not present")
         aadhaar_card = input("Aadhaar card number (if available): ")
         date_first = input("Date of first visit: ")
-        permanent_address = input('Permanent_Address :')
-        current_address = input('Current_Address :')
+        permanent_address = input('Permanent Address :')
+        current_address_check = ask_y_n_statement.ask_option('Current Address', ["Same as Permanent", "Different"])
+        if current_address_check == "Different":
+            current_address = input ("Current Address: ")
+        else:
+            current_address = permanent_address
         phone = input('Phone :')
         email_id = input('Email_ID :')
-        gender = input('Gender :')
+        gender = ask_y_n_statement.ask_option('Gender', ["Female", "Male", "Other"])
         age_yrs = input('Age (yrs) :')
-        date_of_birth = input('Date of Birth :')
+        date_of_birth = input('Date of Birth (mm/dd/yyyy):')
         place_birth = input('Place of Birth :')
         height = ask_y_n_statement.ask_option("Height unit", ["cm", "feet/inches"])
         if height == "cm":
