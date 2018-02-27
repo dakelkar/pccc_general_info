@@ -208,12 +208,16 @@ def repro_details(conn, cursor, file_number, table):
     update_multiple(conn, cursor, table, columns, file_number, data)
 
 def breast_symptoms(conn, cursor, file_number, table):
-    from ask_y_n_statement import get_symptom, get_rb_lb, ask_y_n
+    from ask_y_n_statement import ask_y_n
     from add_update_sql import update_multiple, review_input
-    from breast_cancer_tables import other_symp
+    import textwrap
     check = False
     while not check:
-        symp_state = ["Pain or tenderness", "Lumps", "Nipple Discharge", "Nipple Retraction", "Dimpling", \
+        note = ("Pain or tenderness; Lumps, Nipple Discharge - Milky/water discharge on pressing nippple, Nipple Retraction - nipple reagion goes inside, Dimpling small pits anwywhere on breast, Discolouration, Ulceration (small boils on surface), Eczema - Reddish spots with without itching")
+        wrapper = textwrap.TextWrapper(width=100)
+        string = wrapper.fill(text=note)
+        print(string)
+        symp_state = ["Pain or tenderness", "Lumps", "Nipple Discharge", "Nipple Retraction", "Dimpling",\
                      "Discolouration", "Ulceration", "Eczema"]
         rb_symp_list = []
         rb_dur_list= []
@@ -293,6 +297,7 @@ def habits(conn, cursor, file_number, table):
     check = False
     while not check:
         category = "Diet"
+        print ("Note Ovo-Vegetarian is Egg + Veg eating. If eating patterms are only fish etc enter in Others")
         options = ["Vegetarian", "Non-Vegetarian", "Ovo-Vegetarian", "Other"]
         diet = ask_option(category, options)
         alcohol = ask_y_n("Alcohol consumption")
@@ -314,6 +319,7 @@ def habits(conn, cursor, file_number, table):
     update_multiple(conn, cursor, table, columns, file_number, new_data)
     check = False
     while not check:
+        print ("Note this question includes Gutkha, Pan Masala, Jarda/Maava, Hookah, Nicotine Patch, Mishri consumption")
         tobacco = ask_y_n("Tobacco exposure (Passive and/or Active)")
         if tobacco:
             tobacco = "Tobacco consumption"
@@ -323,7 +329,6 @@ def habits(conn, cursor, file_number, table):
                 if tobacco_type_partic == "Home":
                     tobacco_type_who = input ("What is the specific source?")
                     tobacco_passive = tobacco_type_partic + (" : ") + tobacco_type_who
-
                 else:
                     tobacco_passive = tobacco_type_partic
             else:
@@ -357,28 +362,26 @@ def metastasis_symp (conn, cursor, file_number, table):
     from ask_y_n_statement import ask_y_n
     check = False
     while not check:
-        met_none = ask_y_n("Metastatis Symptoms Present?")
         met = []
-        if not met_none:
-            met = [["No Metastatis Symptoms"]]
-        else:
-            met_bone = ask_y_n("Bone Pain")
-            if met_bone:
-                met.append(["Bone Pain"])
-            met_cough = ask_y_n("Cough")
-            if met_cough:
-                met.append(["Cough"])
-            met_jaundice = ask_y_n("Jaundice")
-            if met_jaundice:
-                met.append(["Jaundice"])
-            met_headache = ask_y_n("Headache")
-            if met_headache:
-                met.append(["Headache"])
-            met_weight = ask_y_n("Weight loss")
-            if met_weight:
-                met.append(["WeightLoss"])
+        met_bone = ask_y_n("Bone Pain")
+        if met_bone:
+            met.append(["Bone Pain"])
+        met_cough = ask_y_n("Cough")
+        if met_cough:
+            met.append(["Cough"])
+        met_jaundice = ask_y_n("Jaundice")
+        if met_jaundice:
+            met.append(["Jaundice"])
+        met_headache = ask_y_n("Headache")
+        if met_headache:
+            met.append(["Headache"])
+        met_weight = ask_y_n("Weight loss")
+        if met_weight:
+            met.append(["WeightLoss"])
         met_flat = [item for sublist in met for item in sublist]
         data_met = "; ".join(met_flat)
+        if met_flat == []:
+            data_met = "No Metastatis Symptoms"
         check = review_input(file_number, ["Metastasis_Symptoms"], [data_met])
     update_single(conn, cursor, table, "Metatasis_Symptoms", file_number, data_met)
 
